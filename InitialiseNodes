@@ -1,0 +1,59 @@
+### Terminal 1 (Jackal – ROS Indigo Master)
+
+_Runs on Jackal itself (Ubuntu 14.04 with ROS Indigo)_
+Brings up Jackal’s onboard ROS master and motor driver bridge.
+
+---
+
+## ssh administrator@192.168.137.173
+
+## source /opt/ros/indigo/setup.bash
+
+export ROS_MASTER_URI=[http://192.168.137.173:11311](http://192.168.137.173:11311/)
+--- Check ROS MASTER IP : echo $ROS_MASTER_URI
+export ROS_IP=192.168.137.173
+
+---
+
+roslaunch jackal_base base.launch
+
+### Terminal 2 (Workstation VM ) :
+
+1. Take in joystick -> /joy
+2. Teleop /joy -> /cmd_vel
+
+---
+
+source /opt/ros/melodic/setup.bash
+export ROS_MASTER_URI=http://192.168.137.173:11311
+export ROS_IP=10.0.2.15
+
+---
+
+sudo modprobe xpad
+--- TEST / FIND controller in the list: ls -l /dev/input/js\*
+roslaunch teleop_twist_joy teleop.launch \
+joy_dev:=/dev/input/js6 \
+joy_config:=xbox \
+require_enable_button:=false
+
+### Terminal 3 (VM) : check joy topic
+
+source /opt/ros/melodic/setup.bash
+export ROS_MASTER_URI=http://192.168.137.173:11311
+export ROS_IP=10.0.2.15
+
+---
+
+rostopic echo /joy
+
+### Terminal 4 (VM) : check cmd_vel topic
+
+source /opt/ros/melodic/setup.bash
+export ROS_MASTER_URI=[http://192.168.137.173:11311](http://192.168.137.173:11311/)
+
+---
+
+## export ROS_IP=10.0.2.15
+
+rostopic echo /cmd_vel
