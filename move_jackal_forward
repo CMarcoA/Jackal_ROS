@@ -1,0 +1,59 @@
+
+# 1. --- TERMINAL 1 : SSH ---
+ssh administrator@192.168.1.1
+
+# 2. !!! start the Jackal ROS
+roslaunch jackal_base base.launch
+
+# --- TERMINAL 2: ---
+ssh administrator@192.168.1.1
+
+# 3. Find your script
+cd ~
+
+# 4. Ensure the script is executable:
+chmod +x move_jackal_forward.sh
+
+# 5. Source the ROS environment:
+source /opt/ros/indigo/setup.bash
+
+# 6. Run the forward-motion script:
+./move_jackal_forward.sh    # publishes a Twist to /cmd_vel at 10 Hz for 1 s (forward at 0.5 m/s), then stops :contentReference[oaicite:1]{index=1}
+
+# 7) In any terminal, monitor the cmd_vel topic to verify
+rostopic echo /cmd_vel
+
+
+# ======================================== #
+# Publishes a Twist on /cmd_vel at 10 Hz for 0.5 s (forward at 0.5 m/s), then stops
+
+# 1) Drive forward at 0.5 m/s for 0.5 seconds
+rostopic pub -r 10 -d 0.5 /cmd_vel geometry_msgs/Twist "
+linear:
+  x: 0.5
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+"
+
+# After 0.5 s, the script immediately sends a single zero‐velocity message
+
+# 2) Publish one zero-velocity Twist to stop immediately
+rostopic pub -1 /cmd_vel geometry_msgs/Twist "
+linear:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+"
+
+# rostopic pub – launches a one-off or continuous publisher to a ROS topic
+# -r 10 – publish at 10 Hz
+# -d 0.5 – keep publishing for 0.5 seconds
+# /cmd_vel geometry_msgs/Twist – the topic and message type: Jackal’s kinematic controller subscribes to /cmd_vel for velocity commands
