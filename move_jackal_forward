@@ -1,15 +1,16 @@
 
-# 1. --- TERMINAL 1 : SSH ---
-ssh administrator@192.168.1.1
+# # 1. --- TERMINAL 1 : SSH ---
+# ssh administrator@192.168.137.173
 
-# 2. !!! start the Jackal ROS
-roslaunch jackal_base base.launch
+# # 2. !!! start the Jackal ROS
+# roslaunch jackal_base base.launch
 
-# --- TERMINAL 2: ---
-ssh administrator@192.168.1.1
+# --- WORKS WITH SEPERATE TERMINALS BUT ... none of them are rosmasters ---
+# --- TERMINAL 1: ---
+ssh administrator@192.168.137.173
 
 # 3. Find your script
-cd ~
+cd 
 
 # 4. Ensure the script is executable:
 chmod +x move_jackal_forward.sh
@@ -17,12 +18,15 @@ chmod +x move_jackal_forward.sh
 # 5. Source the ROS environment:
 source /opt/ros/indigo/setup.bash
 
+# 5.1 exevutable again
+chmod +x move_jackal_forward.sh
+
 # 6. Run the forward-motion script:
-./move_jackal_forward.sh    # publishes a Twist to /cmd_vel at 10 Hz for 1 s (forward at 0.5 m/s), then stops :contentReference[oaicite:1]{index=1}
+./move_jackal_forward.sh
 
-# 7) In any terminal, monitor the cmd_vel topic to verify
+# 7. check stuff
 rostopic echo /cmd_vel
-
+rostopic echo /imu/data
 
 # ======================================== #
 # Publishes a Twist on /cmd_vel at 10 Hz for 0.5 s (forward at 0.5 m/s), then stops
@@ -38,7 +42,7 @@ angular:
   y: 0.0
   z: 0.0
 "
-
+# OR rostopic pub -r 10 -n 5 /cmd_vel geometry_msgs/Twist (using -n)
 # After 0.5 s, the script immediately sends a single zero‐velocity message
 
 # 2) Publish one zero-velocity Twist to stop immediately
@@ -53,7 +57,7 @@ angular:
   z: 0.0
 "
 
-# rostopic pub – launches a one-off or continuous publisher to a ROS topic
-# -r 10 – publish at 10 Hz
-# -d 0.5 – keep publishing for 0.5 seconds
-# /cmd_vel geometry_msgs/Twist – the topic and message type: Jackal’s kinematic controller subscribes to /cmd_vel for velocity commands
+# rostopic pub : launches a one-off or continuous publisher to a ROS topic
+# -r 10 : publish at 10 Hz
+# -d 0.5 : keep publishing for 0.5 seconds
+# /cmd_vel geometry_msgs/Twist : the topic and message type: Jackal’s kinematic controller subscribes to /cmd_vel for velocity commands
