@@ -17,7 +17,10 @@ source /opt/ros/melodic/setup.bash
 export ROS_MASTER_URI=http://192.168.137.173:11311
 export ROS_IP=10.0.2.15
 sudo modprobe xpad
---- TEST / FIND controller in the list: ls -l /dev/input/js\*
+--- TEST / FIND controller in the list: ls -l /dev/input/js*
+--- Find controller (list) ls /dev/input/by-id
+--- grep -A5 "Microsoft X-Box One pad" -n /proc/bus/input/devices
+    --- check the H : Handlers Event, tell you which js is the controller in
 roslaunch teleop_twist_joy teleop.launch \
 joy_dev:=/dev/input/js6 \
 joy_config:=xbox \
@@ -36,3 +39,26 @@ source /opt/ros/melodic/setup.bash
 export ROS_MASTER_URI=http://192.168.137.173:11311
 export ROS_IP=10.0.2.15
 rostopic echo /cmd_vel
+
+
+
+# ----------------------------------------------------------------- #
+Test stuff for controller to Ubuntu:
+sudo modprobe xpad
+
+confirm its active:
+lsmod | grep xpad
+or
+dmesg | tail -n20
+
+Find device node:
+1) List joystick devices
+ls -l /dev/input/js*
+2) List evdev devices by name
+grep -i xbox /proc/bus/input/devices
+grep -A5 "Microsoft X-Box One pad" -n /proc/bus/input/devices
+→ Notice the `Handlers=` line—that tells you your pad is on **`event12`** and **`js6`**
+
+Verify with jstest:
+sudo apt-get install joystick
+jstest /dev/input/js6

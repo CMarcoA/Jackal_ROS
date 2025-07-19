@@ -110,5 +110,5 @@ class RobotControlApp:
 
 if __name__ == '__main__':
     root = tk.Tk()
-    app  = RobotControlApp(root)d
+    app  = RobotControlApp(root)
     root.mainloop()

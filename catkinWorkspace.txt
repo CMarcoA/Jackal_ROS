@@ -1,0 +1,21 @@
+# In your home folder (or wherever you like)
+cd ~
+mkdir -p catkin_ws/src
+cd catkin_ws
+
+# Initialize the workspace
+catkin_make
+
+# Add sourcing to your shell so you never forget it
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+
+# 2. Create ROS Package -----------
+cd ~/catkin_ws/src
+catkin_create_pkg jackal_gui \
+  rospy \
+  sensor_msgs \
+  geometry_msgs \
+  cv_bridge \
+  python3-tk
+

@@ -1,0 +1,8 @@
+# Python 
+python3 --version
+
+#Tkinter
+python3 -c "import tkinter; print('Tkinter', tkinter.TkVersion)"
+
+#cv2
+pkg-config --modversion opencv
