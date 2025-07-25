@@ -1,0 +1,13 @@
+Terminal 1 — Start joy_node:
+sudo nano /etc/network/if-up.d/set-static-ip
+sudo chmod +x /etc/network/if-up.d/set-static-ip
+ifconfig (check if the inet addr: inet addr:192.168.137.100)
+source ~/.bashrc
+rosrun joy joy_node _dev:=/dev/input/js2
+
+Terminal 2 — Run Teleop Script:
+source ~/.bashrc
+rosrun jackal_teleop xbox_teleop.py
+
+Terminal 3 (Optional) — Monitor Velocity:
+rostopic echo /cmd_vel
