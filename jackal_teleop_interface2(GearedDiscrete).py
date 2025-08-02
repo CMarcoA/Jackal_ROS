@@ -49,6 +49,20 @@ class GearTeleopApp(tk.Tk):
 
         btn_frame = tk.Frame(self, bg="#333333")
         btn_frame.pack(pady=10)
+
+        # Webcam placeholder ===========================
+        self.webcam_placeholder = tk.Label(
+            self,
+            text="",
+            bg="#cccccc",
+            width=60,
+            height=15,
+            relief="sunken",
+            bd=2
+        )
+        self.webcam_placeholder.pack(pady=10)
+        # =============================================
+        
         self._buttons = []
         for gear in range(1, 6):
             normal, pressed = self.GEAR_COLORS[gear]
