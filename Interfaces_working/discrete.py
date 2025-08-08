@@ -1,14 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Unified teleop + camera GUI for ROS Indigo / Python 2.7
+# Video panel BELOW the gear buttons, width matches gear row
+
 import Tkinter as tk
 import rospy
-from sensor_msgs.msg import Joy, Image
+from sensor_msgs.msg import Joy, Image, CompressedImage
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from PIL import Image as PILImage, ImageTk
 
-class GearTeleopApp(tk.Tk):
+# Optional deps for compressed image decode
+try:
+    import numpy as np, cv2
+except Exception:
+    np = None
+    cv2 = None
+
+
+class XboxTeleopApp(tk.Tk):
     GEAR_SPEEDS = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
     GEAR_COLORS = {
         1: ("#00FF00", "#009900"),
@@ -20,146 +31,180 @@ class GearTeleopApp(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Jackal Interface (Geared Discrete)")
+        self.title("Jackal Interface (Teleop + Camera)")
         self.configure(bg="#333333")
 
-        rospy.init_node('jackal_gear_teleop', anonymous=True)
+        # ---- ROS init ----
+        rospy.init_node('xbox_teleop', anonymous=True)
 
-        self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        rospy.Subscriber('/joy', Joy, self.joy_callback)
+        # Params
+        self.image_topic    = rospy.get_param('~image_topic', '/camera/image_raw')
+        self.use_compressed = rospy.get_param('~use_compressed', False)
+        self.flip_h         = rospy.get_param('~flip_horizontal', False)
+        self.flip_v         = rospy.get_param('~flip_vertical', False)
 
-        # Camera subscribe
+        # Pub/Sub
+        self.cmd_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        rospy.Subscriber('/joy', Joy, self.joy_callback, queue_size=1, tcp_nodelay=True)
+
         self.bridge = CvBridge()
+        self.latest_axes = [0.0] * 8
         self.latest_frame = None
-        rospy.Subscriber('/camera/image_raw', Image, self.image_callback, queue_size=1)
-
         self.gear = 1
         self.last_triggers = [0, 0]  # [RT, LT]
-        self.latest_axes = [0.0] * 8
 
+        if self.use_compressed:
+            if np is None or cv2 is None:
+                rospy.logwarn("~use_compressed:=true but numpy/cv2 not found; video disabled.")
+            rospy.Subscriber(self.image_topic, CompressedImage,
+                             self.image_callback_compressed, queue_size=1)
+            rospy.loginfo("Subscribed (compressed): %s", self.image_topic)
+        else:
+            rospy.Subscriber(self.image_topic, Image,
+                             self.image_callback_raw, queue_size=1)
+            rospy.loginfo("Subscribed (raw): %s", self.image_topic)
+
+        # ---- GUI ----
         self._build_gui()
         self._refresh_buttons()
 
-        rospy.Timer(rospy.Duration(0.05), self.publish_twist)  # 20 Hz
-        self.after(30, self.video_tick)  # ~33 FPS
+        # Loops (publish at ~60 Hz for snappier control)
+        rospy.Timer(rospy.Duration(0.016), self.publish_twist)
+        self.after(33, self.video_tick)  # ~30 FPS display
+        self.after(150, self._sync_video_width)  # measure gear row width after layout
         self.after(100, self.tk_loop)
 
+    # ---------- GUI ----------
     def _build_gui(self):
-        # Header row with STOP button
+        # Top bar with STOP
         top = tk.Frame(self, bg="#333333")
         top.pack(fill="x", pady=(10, 0))
-        stop_btn = tk.Button(
-            top, text="EMERGENCY STOP", bg="red", fg="white", width=14,
-            command=lambda: self._set_gear(1)
-        )
-        stop_btn.pack(side="right", padx=10)
+        tk.Button(top, text="EMERGENCY STOP", bg="red", fg="white", width=14,
+                  command=lambda: self._set_gear(1)).pack(side="right", padx=10)
 
-        # Middle row: left = gears, right = video
+        # Middle container
         mid = tk.Frame(self, bg="#333333")
         mid.pack(pady=10, padx=10)
 
-        # Gear buttons frame (left)
-        btn_frame = tk.Frame(mid, bg="#333333")
-        btn_frame.pack(side="left", padx=(0, 20))
+        # Row 1: Gear buttons (horizontally)
+        self.btn_frame = tk.Frame(mid, bg="#333333")
+        self.btn_frame.pack()  # centered row
         self._buttons = []
-        for gear in range(1, 6):
-            normal, _pressed = self.GEAR_COLORS[gear]
-            btn = tk.Button(
-                btn_frame, text=str(gear), width=4, bg=normal,
-                fg="white" if gear >= 4 else "black",
-                command=lambda g=gear: self._set_gear(g)
-            )
-            btn.pack(side="left", padx=5)
-            self._buttons.append(btn)
+        for g in range(1, 6):
+            normal, _ = self.GEAR_COLORS[g]
+            b = tk.Button(self.btn_frame, text=str(g), width=4, bg=normal,
+                          fg="white" if g >= 4 else "black",
+                          command=lambda gg=g: self._set_gear(gg))
+            b.pack(side="left", padx=5)
+            self._buttons.append(b)
 
-        # Video area (right)
-        self.video_h = 240
-        self.video_w = 320
-        self.webcam_label = tk.Label(mid, bg="#000000", width=self.video_w, height=1)
-        self.webcam_label.pack(side="left")
+        # Row 2: Video display (below)
+        self.video_label = tk.Label(mid, bg="#000000")
+        self.video_label.pack(pady=(10, 0))
 
-        # Footer spacer
-        tk.Frame(self, height=10, bg="#333333").pack()
+        # No hint text (removed per request)
 
     def _refresh_buttons(self):
-        for idx, btn in enumerate(self._buttons, start=1):
+        for idx, b in enumerate(self._buttons, start=1):
             normal, pressed = self.GEAR_COLORS[idx]
             if self.gear == idx:
-                btn.config(bg=pressed, relief="sunken", bd=4)
+                b.config(bg=pressed, relief="sunken", bd=4)
             else:
-                btn.config(bg=normal, relief="raised", bd=2)
+                b.config(bg=normal, relief="raised", bd=2)
 
-    def _set_gear(self, new_gear):
-        self.gear = max(1, min(5, new_gear))
+    def _set_gear(self, g):
+        self.gear = max(1, min(5, g))
         self._refresh_buttons()
-        rospy.loginfo("Gear changed to {}".format(self.gear))
+        rospy.loginfo("Gear -> %d", self.gear)
 
-    # === ROS callbacks ===
+    # ---------- ROS callbacks ----------
     def joy_callback(self, msg):
         axes = msg.axes
+        # Many Xbox mappings on Indigo: LT=axes[2], RT=axes[5]; adjust if needed
+        rt = axes[5] < 0.5  # trigger pressed -> smaller value
+        lt = axes[2] < 0.5
 
-        # These indices match many Logitech/Xbox mappings on Indigo; tweak if needed
-        rt_pressed = axes[5] < 0.5
-        lt_pressed = axes[2] < 0.5
-
-        if rt_pressed and not self.last_triggers[0] and self.gear < 5:
+        if rt and not self.last_triggers[0] and self.gear < 5:
             self._set_gear(self.gear + 1)
-        self.last_triggers[0] = rt_pressed
+        self.last_triggers[0] = rt
 
-        if lt_pressed and not self.last_triggers[1] and self.gear > 1:
+        if lt and not self.last_triggers[1] and self.gear > 1:
             self._set_gear(self.gear - 1)
-        self.last_triggers[1] = lt_pressed
+        self.last_triggers[1] = lt
 
         self.latest_axes = axes
 
-    def image_callback(self, msg):
+    def image_callback_raw(self, msg):
         try:
             bgr = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            # BGR -> RGB (no cv2 import required)
-            rgb = bgr[:, :, ::-1]
-            self.latest_frame = rgb
+            if self.flip_h: bgr = bgr[:, ::-1]
+            if self.flip_v: bgr = bgr[::-1, :]
+            self.latest_frame = bgr[:, :, ::-1]  # RGB
         except CvBridgeError as e:
             rospy.logwarn("cv_bridge error: %s", e)
 
-    # === Tk update loops ===
+    def image_callback_compressed(self, msg):
+        if np is None or cv2 is None:
+            return
+        try:
+            arr = np.fromstring(msg.data, np.uint8)
+            bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+            if bgr is None:
+                return
+            if self.flip_h: bgr = cv2.flip(bgr, 1)
+            if self.flip_v: bgr = cv2.flip(bgr, 0)
+            self.latest_frame = bgr[:, :, ::-1]  # RGB
+        except Exception as e:
+            rospy.logwarn("compressed decode error: %s", e)
+
+    # ---------- Layout helpers ----------
+    def _sync_video_width(self):
+        # measure the actual rendered width of the gear row
+        self.update_idletasks()
+        self.video_target_w = self.btn_frame.winfo_width()
+
+    def _resize_to_target(self, pil_img):
+        # keep aspect: fit width to gear row
+        w0, h0 = pil_img.size
+        tw = getattr(self, 'video_target_w', None)
+        if not tw or tw <= 1:
+            return pil_img  # fallback until width known
+        th = int((float(h0) / float(w0)) * tw)
+        return pil_img.resize((tw, th), PILImage.BILINEAR)
+
+    # ---------- Loops ----------
     def video_tick(self):
         if self.latest_frame is not None:
             img = PILImage.fromarray(self.latest_frame)
-            # Fit height; keep aspect
-            w0, h0 = img.size
-            target_h = self.video_h
-            target_w = int((float(w0) / float(h0)) * target_h)
-            img = img.resize((target_w, target_h), PILImage.BILINEAR)
-
+            img = self._resize_to_target(img)  # fit to gear width
             imgtk = ImageTk.PhotoImage(image=img)
-            self.webcam_label.imgtk = imgtk  # prevent GC
-            self.webcam_label.configure(image=imgtk)
-        self.after(30, self.video_tick)
+            self.video_label.imgtk = imgtk  # prevent GC
+            self.video_label.configure(image=imgtk)
+        self.after(33, self.video_tick)
 
-    def publish_twist(self, event):
+    def publish_twist(self, _evt):
         if not hasattr(self, 'latest_axes'):
             return
-
-        twist = Twist()
-        # Inverted linear axis so UP = forward (like your original)
+        t = Twist()
+        # Forward/back on left stick Y
         if self.latest_axes[1] > 0.5:
-            twist.linear.x = self.GEAR_SPEEDS[self.gear]
+            t.linear.x = self.GEAR_SPEEDS[self.gear]
         elif self.latest_axes[1] < -0.5:
-            twist.linear.x = -self.GEAR_SPEEDS[self.gear]
+            t.linear.x = -self.GEAR_SPEEDS[self.gear]
         else:
-            twist.linear.x = 0.0
-
-        # Analog rotation
-        twist.angular.z = self.latest_axes[3] * 1.0
-        self.pub.publish(twist)
+            t.linear.x = 0.0
+        # Turn on right stick X
+        t.angular.z = self.latest_axes[3] * 1.0
+        self.cmd_pub.publish(t)
 
     def tk_loop(self):
         if not rospy.is_shutdown():
             self.after(100, self.tk_loop)
 
+
 if __name__ == '__main__':
     try:
-        app = GearTeleopApp()
+        app = XboxTeleopApp()
         app.mainloop()
     except rospy.ROSInterruptException:
         pass
