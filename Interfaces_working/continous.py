@@ -34,9 +34,9 @@ class ContinuousSpeedUI(tk.Tk):
         rospy.init_node('jackal_continuous_teleop', anonymous=True)
 
         # Params
-        self.image_topic    = rospy.get_param('~image_topic', '/camera/image_raw')
+        self.image_topic = rospy.get_param('~image_topic', '/camera/image_raw')
         self.use_compressed = rospy.get_param('~use_compressed', False)
-        self.flip_h         = rospy.get_param('~flip_horizontal', False)
+        self.flip_h = rospy.get_param('~flip_horizontal', False)
         self.flip_v         = rospy.get_param('~flip_vertical', False)
 
         # ROS
