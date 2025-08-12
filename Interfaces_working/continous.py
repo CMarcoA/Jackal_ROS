@@ -37,7 +37,7 @@ class ContinuousSpeedUI(tk.Tk):
         self.image_topic = rospy.get_param('~image_topic', '/camera/image_raw')
         self.use_compressed = rospy.get_param('~use_compressed', False)
         self.flip_h = rospy.get_param('~flip_horizontal', False)
-        self.flip_v         = rospy.get_param('~flip_vertical', False)
+        self.flip_v = rospy.get_param('~flip_vertical', False)
 
         # ROS
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
