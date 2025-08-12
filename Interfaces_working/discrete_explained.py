@@ -47,13 +47,12 @@ class XboxTeleopApp(tk.Tk):
         these will use the chosen topic name
         """
         
-        # ----  Pub/Sub  ----
+        # ----  Publisher and Subcriber  ----
         self.cmd_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         # Connects to: publish_twist() - fill a Twist message THEN send it out using this publisher
 
         rospy.Subscriber('/joy', Joy, self.joy_callback, queue_size=1, tcp_nodelay=True)
         # Listens to /joy, calls joy_callback() every time a Joy message arrives
-
 
         # ---- Setting up image Converter (ROS -> OpenCV) ----
         self.bridge = CvBridge()
@@ -74,7 +73,9 @@ class XboxTeleopApp(tk.Tk):
         if self.use_compressed:
             if np is None or cv2 is None:
                 rospy.logwarn("~use_compressed:=true but numpy/cv2 not found; video disabled.")
-            rospy.Subscriber(self.image_topic, CompressedImage,self.image_callback_compressed, queue_size=1)
+            rospy.Subscriber(self.image_topic,CompressedImage,
+                             self.image_callback_compressed,
+                             queue_size=1)
             rospy.loginfo("Subscribed (compressed): %s", self.image_topic)
         else:
             rospy.Subscriber(self.image_topic, Image,self.image_callback_raw, queue_size=1)
