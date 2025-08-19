@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist
 import Tkinter as tk
 
 class GearTeleopApp(tk.Tk):
-    GEAR_SPEEDS = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
+    GEAR_SPEEDS = {1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.2}
     GEAR_COLORS = {
         1: ("#00FF00", "#009900"),
         2: ("#80FF00", "#669900"),
