@@ -12,6 +12,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from PIL import Image as PILImage, ImageTk
 
 # Optional deps for compressed image decode
+#
 try:
     import numpy as np
     import cv2
