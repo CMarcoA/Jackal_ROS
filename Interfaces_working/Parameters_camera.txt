@@ -1,0 +1,22 @@
+rosparam set /camera/camera/frame_rate 30.0
+rosparam set /camera/camera/video_mode format7
+rosparam set /camera/camera/format7_mode 0
+rosparam set /camera/camera/format7_color_coding mono8
+rosparam set /camera/camera/format7_roi_width 640
+rosparam set /camera/camera/format7_roi_height 480
+rosparam set /camera/camera/format7_x_offset 0
+rosparam set /camera/camera/format7_y_offset 0
+rosparam set /camera/camera/auto_exposure false
+rosparam set /camera/camera/auto_shutter false
+rosparam set /camera/camera/shutter_speed 0.012
+rosparam set /camera/camera/auto_gain false
+rosparam set /camera/camera/gain 6.0
+rosparam set /camera/camera/auto_white_balance false
+rosparam set /camera/camera/brightness 0.0
+rosparam set /camera/camera/gamma 1.0
+rosparam set /camera/camera/pan 0
+rosparam set /camera/camera/tilt 0
+
+# (only needed if you’ll use compressed)
+rosparam set /camera/camera/image_mono/compressed/jpeg_quality 60
+rosparam set /camera/camera/image_mono/compressed/png_level 1
