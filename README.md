@@ -19,6 +19,13 @@ Robots are built to take in our every command but does it truly understand the p
 
 **Technical:** a ROS teleop node that remaps joystick input into **discrete gears** or **per-gear [min,max] windows** and publishes `geometry_msgs/Twist` to **`/cmd_vel`**.
 
+## 🎥 Demos
+
+**Discrete Gears**
+<video src="./figures/DEMO_FINAL-Discrete_Gears.mp4" controls width="720"></video>
+
+**Continuous Gear**
+<video src="./figures/DEMO_FINAL-Continuous_Gear.mp4" controls width="720"></video>
 ---
 
 ## 🤔 Why Gearing?
