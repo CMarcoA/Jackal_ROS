@@ -1,9 +1,7 @@
 <h1 align="center">HCI Jackal: Gearing-Based Teleoperation Interfaces</h1>
 
 <p align="center">
-  Robots execute our commands — but do our interfaces respect the <b>power</b> they control?<br>
-  We explore <b>gearing</b> (trustable speed ranges) to make Clearpath <b>Jackal UGV</b> driving
-  <b>safer</b>, <b>calmer</b>, and more <b>precise</b>.
+Robots are built to take in our every command but does it truly understand the power they hold? Imagine a robot, a machine that is practically unstopable once it sets a speed its motors. Now, imagine putting this robot in a crowded area, speeding through it with max speed. Sounds dangerous doesn't it? We propose to design and find an interface that lets operators control the speed in certain levels, creating a safer way to utilise the power of the robot. 
 </p>
 
 <p align="center">
@@ -17,11 +15,9 @@
 
 ## 🔎 Overview
 
-**Plain idea:** fast robots in tight spaces are risky. **Gearing** lets the operator pick a safe speed band (e.g., *Slow* vs *Normal*), so the joystick’s **full travel controls only that band**.
+**What this is:** A Human–Computer Interaction (HCI) project at the University of Manitoba exploring **“gearing” controls** for the Clearpath **Jackal UGV**. Gearing lets an operator work within just the part of the robot’s capability they actually need (e.g., **slow, precise motion in tight spaces**) by remapping the joystick range to a **smaller, safer speed band**. This aims to improve **usability, workload, and safety** in cluttered environments. :contentReference[oaicite:0]{index=0}
 
-**Technical one-liner:** a ROS teleop node that remaps joystick input into **discrete gears** or **per-gear [min,max] windows** and publishes `geometry_msgs/Twist` to **`/cmd_vel`**.
-
-**Tiny example:** if Gear 1 caps linear speed at ~0.20 m/s and Gear 3 at ~0.60 m/s, the same thumb motion yields **finer control** in Gear 1 for doorway approaches; switch to Gear 3 for open halls.
+**Technical:** a ROS teleop node that remaps joystick input into **discrete gears** or **per-gear [min,max] windows** and publishes `geometry_msgs/Twist` to **`/cmd_vel`**.
 
 ---
 
