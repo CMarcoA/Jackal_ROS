@@ -1,3 +1,4 @@
+# Best camera setting for the Jackal
 rosparam set /camera/camera/frame_rate 30.0
 rosparam set /camera/camera/video_mode format7
 rosparam set /camera/camera/format7_mode 0
@@ -17,6 +18,6 @@ rosparam set /camera/camera/gamma 1.0
 rosparam set /camera/camera/pan 0
 rosparam set /camera/camera/tilt 0
 
-# (only needed if you’ll use compressed)
+# compressed specific
 rosparam set /camera/camera/image_mono/compressed/jpeg_quality 60
 rosparam set /camera/camera/image_mono/compressed/png_level 1
