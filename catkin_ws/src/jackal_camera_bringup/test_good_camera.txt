@@ -1,0 +1,7 @@
+cd ~/catkin_ws/src/jackal_camera_bringup
+
+# See the YAML
+cat config/camera_good.yaml
+
+# See the launch file
+cat launch/camera_good.launch

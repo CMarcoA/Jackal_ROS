@@ -1,0 +1,31 @@
+# Namespace: /camera/flea3_nodelet
+camera:
+  frame_rate: 15.0
+
+  # Format7 mono at 640x480
+  video_mode: format7
+  format7_mode: 0
+  format7_color_coding: mono8
+  format7_roi_width: 640
+  format7_roi_height: 480
+  format7_x_offset: 0
+  format7_y_offset: 0
+
+  # Lock exposure/gain
+  auto_exposure: false
+  auto_shutter:  false
+  shutter_speed: 0.012   # adjust if too bright/dark
+  auto_gain:     false
+  gain:          6.0
+  auto_white_balance: false
+
+  brightness: 0.0
+  gamma: 1.0
+  pan: 0
+  tilt: 0
+
+camera/image_mono:
+  compressed:
+    jpeg_quality: 65
+    png_level: 1
+
