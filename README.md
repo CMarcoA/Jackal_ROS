@@ -19,6 +19,7 @@ Robots are built to take in our every command but does it truly understand the p
 
 **Technical:** a ROS teleop node that remaps joystick input into **discrete gears** or **per-gear [min,max] windows** and publishes `geometry_msgs/Twist` to **`/cmd_vel`**.
 
+
 ### 📘 Jackal Teleoperation Manual (ONGOING)
 <p>
   <img src="Jackal-Manual_Cover.jpg"
