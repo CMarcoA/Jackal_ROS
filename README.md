@@ -47,9 +47,9 @@ Robots are built to take in our every command but does it truly understand the p
 
 ## 🧪 Interfaces in this Repo
 
-1. **Base (Raw Joystick)** — direct stick→speed mapping (baseline; precise low-speed control is harder).  
-2. **Geared — Discrete Levels (1–5)** — each gear is a fixed cap (e.g., Gear 2 = 0.40 m/s); bump gear up/down.  
-3. **Geared — Continuous Window per Gear** — each gear defines a `[min,max]` window; stick sweeps inside that band (analog feel, safe ceiling).
+1. **Base (Raw Joystick)**: direct stick→speed mapping (baseline; precise low-speed control is harder).  
+2. **Geared - Discrete Levels (1–5)**: each gear is a fixed cap (e.g., Gear 2 = 0.40 m/s); bump gear up/down.  
+3. **Geared - Continuous Window per Gear**: each gear defines a `[min,max]` window; stick sweeps inside that band (analog feel, safe ceiling).
 
 ---
 
