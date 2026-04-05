@@ -32,16 +32,10 @@ Robots are built to take in our every command but does it truly understand the p
 ## 🎥 Demos
 
 **Discrete Gears**  
-<video controls width="720">
-  <source src="./DEMO_FINAL-Discrete_Gears.mp4?raw=1" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[![Discrete-Gear-Demo](discrete-photo.png)](https://drive.google.com/file/d/1PcqrT4zH9PoieW-pLL0yN6xDMPK-AFh2/view?usp=sharing)
 
 **Continuous Gear**  
-<video controls width="720">
-  <source src="./DEMO_FINAL-Continous_Gear.mp4?raw=1" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[![Continous-Gear-Demo](continous-photo.png)](https://drive.google.com/file/d/1PcqrT4zH9PoieW-pLL0yN6xDMPK-AFh2/view?usp=sharing)
 ---
 
 ## 🤔 Why Gearing?
