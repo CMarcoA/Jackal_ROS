@@ -25,7 +25,7 @@ Robots are built to take in our every command but does it truly understand the p
   <img src="Jackal-Manual_Cover.jpg"
        width="800">
   <br>
-  <sub>Lab-made quick guide for safe, precise Jackal teleop.</sub>
+ 
   [Download pdf guide here](https://drive.google.com/file/d/1Rfj2QKtErziEa1WR4tV2xEsc-lcB4AXs/view?usp=sharing)
 </p>
 
